@@ -1,0 +1,38 @@
+{
+  "name": "first-ionic-app-backend",
+  "version": "1.0.0",
+  "description": "written in Ionicv1",
+  "main": "server.js",
+  "scripts": {
+    "test": "nodemon server",
+    "start": "node server.js"
+  },
+  "author": "devMarshall",
+  "license": "ISC",
+  "dependencies": {
+    "angular": "^1.6.6",
+    "angular-ui-router": "^1.0.3",
+    "bcrypt-nodejs": "latest",
+    "body-parser": "^1.18.1",
+    "bootstrap": "^4.0.0-beta",
+    "chokidar": "^1.7.0",
+    "cloudinary": "^1.9.0",
+    "connect": "^3.6.5",
+    "connect-multiparty": "^2.0.0",
+    "cookie-parser": "~1.0.0",
+    "cors": "^2.8.4",
+    "express": "^4.15.4",
+    "express-session": "~1.0.0",
+    "mongoose": "^4.11.12",
+    "mongoose-searchable": "^1.0.0",
+    "mongoose-text-search": "0.0.2",
+    "morgan": "^1.9.0",
+    "ng-file-upload": "^12.2.13",
+    "node-schedule": "^1.2.5",
+    "passport": "~0.1.17",
+    "passport-local": "~0.1.6",
+    "popper.js": "^1.12.5",
+    "random-key": "*",
+    "socket.io": "^2.0.3"
+  }
+}
