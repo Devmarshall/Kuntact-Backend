@@ -7,6 +7,7 @@ var productSchema = mongoose.Schema({
     id: String,
     Name: String,
     Description: String,
+    productCategory: String,
     Price: Number,
     AmountInStock: Number,
     Images: {
@@ -19,8 +20,6 @@ var productSchema = mongoose.Schema({
         Comment: String
     }],
     ReviewScore: Number
-
 });
-
 
 module.exports = mongoose.model('Product', productSchema);

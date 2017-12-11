@@ -5,6 +5,7 @@ var serviceSchema = mongoose.Schema({
 
     userToken: String,
     Name: String,
+    serviceCategory: String,
     Description: String,
     id: String,
     Reviews: [{

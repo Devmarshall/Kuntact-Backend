@@ -15,8 +15,16 @@ var userSchema = mongoose.Schema({
     services: [{
         id: String
     }],
-    products: [],
+    products: [{
+        id: String
+    }],
     phoneNumber: String,
+    PhysicalLocation: [{
+        BuildingNo: Number,
+        Street: String,
+        City: String,
+        State: String
+    }],
     token: String
 
 });
