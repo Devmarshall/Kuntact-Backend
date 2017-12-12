@@ -6,7 +6,7 @@ var cors = require('cors');
 var textSearch = require('mongoose-text-search');
 
 var app = express();
-var PORT = 3004
+var PORT = 3010;
 var mongoUrl = 'mongodb://localhost:27017/Kuntact';
 
 var routes = require('./routes.js')
@@ -22,11 +22,9 @@ mongoose.connect(mongoUrl);
 
 // Routes
 
-app.post('/api/profile/signup', routes.SignUp);
+app.post('/api/user/signup', routes.SignUp);
 
-app.post('/api/profile/login', routes.Login);
-
-app.post('/api/profile/addskill', routes.addSkill);
+app.post('/api/user/login', routes.Login);
 
 app.post('/api/search', routes.Search);
 

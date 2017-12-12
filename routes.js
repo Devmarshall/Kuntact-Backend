@@ -6,7 +6,9 @@ module.exports.SignUp = function (req, res) {
 
     // First check if user email or username is taken is taken before signup
 
-    User.findOne({ 'local.email': req.body.email }, function (err, results) {
+    User.findOne({
+        'local.email': req.body.email
+    }, function (err, results) {
         if (err) {
             console.log(err)
         } else {
@@ -15,40 +17,22 @@ module.exports.SignUp = function (req, res) {
                     unavailableParameter: 'Email'
                 })
             } else {
-                User.findOne({ 'userName': req.body.userName }, function (err2, results2) {
-                    if (err) {
-                        console.log(err2);
-                    } else {
-                        if (results2) {
-                            res.json({
-                                unavailableParameter: 'userName'
-                            })
-                        } else {
-                            var newUser = new User();
+                var newUser = new User();
 
-                            newUser.userName = req.body.userName;
-                            newUser.phoneNumber = req.body.phoneNumber;
-                            newUser.local.email = req.body.email;
-                            newUser.local.password = newUser.generateHash(req.body.password);
-                            newUser.token = random.generate();
+                newUser.Name = req.body.Name;
+                newUser.phoneNumber = req.body.phoneNumber;
+                newUser.local.email = req.body.email;
+                newUser.local.password = newUser.generateHash(req.body.password);
+                newUser.token = random.generate();
 
-                            newUser.save().then(function () {
-
-                                User.findOne({ 'token': newUser.token }, '-local.password', function (err3, currentUser) {
-                                    if (err3) {
-                                        console.log(err3);
-                                        res.error(err3)
-                                    } else {
-                                        res.json(currentUser);
-                                    }
-                                })
-                            }, function (err) {
-                                console.log(err);
-                                res.error(err);
-                            })
-                        }
-                    }
+                newUser.save().then(function () {
+                    console.log('SignUp Successfull')
+                    console.log(newUser)
+                    res.json(newUser);
+                }, function (err) {
+                    console.log(err);
                 })
+
             }
         }
     })
@@ -57,22 +41,21 @@ module.exports.SignUp = function (req, res) {
 
 module.exports.Login = function (req, res) {
 
-    User.findOne({ 'local.email': req.body.email }, function (err, user) {
+    User.findOne({
+        'local.email': req.body.email
+    }, function (err, user) {
         if (err) {
             res.error(err);
         } else {
             if (!user || !user.validPassword(req.body.password)) {
-                res.json({ errorMsg: 'Invalid Details' })
+                res.json({
+                    errorMsg: 'Invalid Details'
+                })
             } else {
 
-                // res.json({
-                //     userName: user.userName,
-                //     phoneNumber: user.phoneNumber,
-                //     email: user.local.email,
-                //     token: user.token
-                // })
-
-                User.findOne({ 'token': user.token }, '-local.password', function (err2, currentUser) {
+                User.findOne({
+                    'token': user.token
+                }, '-local.password', function (err2, currentUser) {
                     if (err2) {
                         console.log(err2);
                         res.error(err2);
@@ -88,7 +71,9 @@ module.exports.Login = function (req, res) {
 }
 
 module.exports.addSkill = function (req, res) {
-    User.findOne({ 'token': req.body.userToken }, function (err, user) {
+    User.findOne({
+        'token': req.body.userToken
+    }, function (err, user) {
 
         if (err) {
             console.log(err);
@@ -108,7 +93,9 @@ module.exports.addSkill = function (req, res) {
 
 module.exports.getUser = function (req, res) {
 
-    User.findOne({ 'token': req.body.userToken }, '-local.password', function (err, user) {
+    User.findOne({
+        'token': req.body.userToken
+    }, '-local.password', function (err, user) {
         if (err) {
             console.log(err);
             res.error(err);
@@ -144,13 +131,42 @@ module.exports.Search = function (req, res) {
     var currentUserToken = req.body.currentUserToken;
 
     var params = {
-        $or: [
-            { 'userName': { '$regex': req.body.searchString, '$options': 'i' } },
-            { 'mySkills.Name': { '$regex': req.body.searchString, '$options': 'i' } },
-            { 'mySkills.Description': { '$regex': req.body.searchString, '$options': 'i' } },
-            { 'phoneNumber': { '$regex': req.body.searchString, '$options': 'i' } },
-            { 'local.email': { '$regex': req.body.searchString, '$options': 'i' } }],
-        $and: [{ 'token': { $ne: currentUserToken } }]
+        $or: [{
+                'userName': {
+                    '$regex': req.body.searchString,
+                    '$options': 'i'
+                }
+            },
+            {
+                'mySkills.Name': {
+                    '$regex': req.body.searchString,
+                    '$options': 'i'
+                }
+            },
+            {
+                'mySkills.Description': {
+                    '$regex': req.body.searchString,
+                    '$options': 'i'
+                }
+            },
+            {
+                'phoneNumber': {
+                    '$regex': req.body.searchString,
+                    '$options': 'i'
+                }
+            },
+            {
+                'local.email': {
+                    '$regex': req.body.searchString,
+                    '$options': 'i'
+                }
+            }
+        ],
+        $and: [{
+            'token': {
+                $ne: currentUserToken
+            }
+        }]
     };
 
     // Yeah I had to borrow Somto's crappy code 😒
