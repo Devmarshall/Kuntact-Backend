@@ -1,5 +1,9 @@
 var mongoose = require('mongoose');
 var User = require('./models/user.js');
+var Service = require('./models/service.js');
+var ServiceCategory = require('./models/servicecategory.js');
+var Product = require('./models/product.js');
+var ProductCategory = require('./models/productCategory.js');
 var random = require('random-key');
 
 module.exports.SignUp = function (req, res) {
@@ -70,25 +74,47 @@ module.exports.Login = function (req, res) {
 
 }
 
-module.exports.addSkill = function (req, res) {
-    User.findOne({
-        'token': req.body.userToken
-    }, function (err, user) {
+module.exports.addService = function (req, res) {
 
-        if (err) {
-            console.log(err);
-            res.error(err);
-        } else {
-            user.mySkills.push(req.body.skillData);
+    var newService = new Service();
 
-            user.save().then(function () {
-                res.json(user);
-            }, function (err2) {
-                res.error(err2);
-            })
-        }
+    var token = req.body.userToken + random.generate(20);
 
-    });
+    newService = req.body.newServiceData;
+    newService.userToken = req.body.userToken;
+    newService.token = token;
+
+    newService.save().then(function () {
+
+        User.findOne({
+            'token': req.body.userToken
+        }, function (err, user) {
+
+            if (err) {
+                console.log(err);
+                res.error(err);
+            } else {
+                user.services.push({
+                    serviceToken: token
+                });
+                user.save().then(function () {
+
+                    res.json(user);
+
+                }, function (err2) {
+
+                    res.error(err2);
+                    console.log(err2);
+
+                })
+            }
+
+        });
+
+    }, function (err) {
+        console.log(err);
+    })
+
 }
 
 module.exports.getUser = function (req, res) {
@@ -106,24 +132,24 @@ module.exports.getUser = function (req, res) {
 
 }
 
-module.exports.getAllSkills = function (req, res) {
+// module.exports.getAllSkills = function (req, res) {
 
-    var allSkills = [];
+//     var allSkills = [];
 
-    User.find({}, function (err, allUsers) {
+//     User.find({}, function (err, allUsers) {
 
-        if (err) {
-            console.log(err);
-            res.error(err)
-        } else {
-            allUsers.forEach(function (user) {
-                allSkills.push(user.mySkills.Name)
-            });
+//         if (err) {
+//             console.log(err);
+//             res.error(err)
+//         } else {
+//             allUsers.forEach(function (user) {
+//                 allSkills.push(user.mySkills.Name)
+//             });
 
-            res.json(allSkills);
-        }
-    })
-}
+//             res.json(allSkills);
+//         }
+//     })
+// }
 
 module.exports.Search = function (req, res) {
 

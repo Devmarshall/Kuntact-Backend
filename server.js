@@ -32,5 +32,5 @@ var server = app.listen(PORT, 'localhost', function () {
     var serverAddr = server.address().address;
     var serverPort = server.address().port;
 
-    console.log('Server listening at ' + serverAddr + ':' + serverPort);
+    console.log('Kuntact-Backend listening at ' + serverAddr + ':' + serverPort);
 });

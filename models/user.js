@@ -16,10 +16,10 @@ var userSchema = mongoose.Schema({
         default: Date.now
     },
     services: [{
-        id: String
+        serviceToken: String
     }],
     products: [{
-        id: String
+        productToken: String
     }],
     phoneNumber: String,
     PhysicalLocation: [{
