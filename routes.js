@@ -1,3 +1,7 @@
+import {
+    allResolved
+} from 'q';
+
 var mongoose = require('mongoose');
 var User = require('./models/user.js');
 var Service = require('./models/service.js');
@@ -130,6 +134,18 @@ module.exports.getUser = function (req, res) {
 
 }
 
+module.exports.getAllUsers = function (req, res) {
+
+    User.find({}, function (err, allUsers) {
+        if (err) {
+            console.log(err)
+        } else {
+            res.json(allUsers);
+        }
+    })
+
+}
+
 module.exports.getAllServices = function (req, res) {
 
     var allServices = [];
@@ -154,14 +170,11 @@ module.exports.getAllServices = function (req, res) {
                         service: service,
                         serviceOwner: user
                     })
-
                 }
             })
 
         }).then(function () {
-
             res.json(allServices)
-
         }, function (err) {
             console.log(err);
         })
@@ -199,27 +212,64 @@ module.exports.getService = function (req, res) {
 
 module.exports.getAllProducts = function (req, res) {
 
+    var allProducts = [];
+
+    Product.find({}, function (err, tempAllProducts) {
+        if (err) {
+            console.log(err);
+        }
+    }).then(function () {
+        tempAllProducts.forEach(product => {
+            User.findOne({
+                'token': product.userToken
+            }, function (err, user) {
+                if (err) {
+                    console.log(err);
+                } else {
+
+                    allProducts.push({
+                        product: product,
+                        productOwner: user
+                    })
+                }
+            })
+        }).then(function () {
+            res.json(allProducts)
+        }, function (err) {
+            console.log(err);
+        })
+    }, function (err) {
+        console.log(err);
+    })
+
 }
 
 module.exports.getProduct = function (req, res) {
 
+    Product.findOne({
+        'token': req.body.productToken
+    }, function (err, product) {
+        if (err) {
+            console.log(err)
+        } else {
+            User.findOne({
+                'token': product.userToken
+            }, function (err2, user) {
+                if (err2) {
+                    console.log(err2);
+                } else {
+                    var postData = {
+                        product: product,
+                        productOwner: user
+                    };
+
+                    res.json(postData);
+                }
+            })
+        }
+    })
+
 }
-
-module.exports.getAllUsers = function (req, res) {
-
-}
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 // module.exports.Search = function (req, res) {
