@@ -1,7 +1,3 @@
-import {
-    allResolved
-} from 'q';
-
 var mongoose = require('mongoose');
 var User = require('./models/user.js');
 var Service = require('./models/service.js');
@@ -78,11 +74,26 @@ module.exports.Login = function (req, res) {
 
 }
 
+module.exports.getUser = function (req, res) {
+
+    User.findOne({
+        'token': req.body.userToken
+    }, '-local.password', function (err, user) {
+        if (err) {
+            console.log(err);
+
+        } else {
+            res.json(user);
+        }
+    })
+
+}
+
 module.exports.addService = function (req, res) {
 
     var newService = new Service();
 
-    var token = req.body.userToken + random.generate(20);
+    var token = req.body.userToken + random.generate(15);
 
     newService = req.body.newServiceData;
     newService.userToken = req.body.userToken;
@@ -101,13 +112,9 @@ module.exports.addService = function (req, res) {
                     serviceToken: token
                 });
                 user.save().then(function () {
-
-                    res.json(user);
-
+                    res.json('Product Added Successfully');
                 }, function (err2) {
-
                     console.log(err2);
-
                 })
             }
 
@@ -115,21 +122,6 @@ module.exports.addService = function (req, res) {
 
     }, function (err) {
         console.log(err);
-    })
-
-}
-
-module.exports.getUser = function (req, res) {
-
-    User.findOne({
-        'token': req.body.userToken
-    }, '-local.password', function (err, user) {
-        if (err) {
-            console.log(err);
-
-        } else {
-            res.json(user);
-        }
     })
 
 }
@@ -144,6 +136,31 @@ module.exports.getAllUsers = function (req, res) {
         }
     })
 
+}
+
+module.exports.getService = function (req, res) {
+
+    Service.findOne({
+        'token': req.body.serviceToken
+    }, function (err, service) {
+        if (err) {
+            console.log(err)
+        } else {
+            User.findOne({
+                'token': service.userToken
+            }, function (err2, user) {
+                if (err2) {
+                    console.log(err2);
+                } else {
+                    var postData = {
+                        service: service,
+                        serviceOwner: user
+                    };
+                    res.json(postData);
+                }
+            })
+        }
+    })
 }
 
 module.exports.getAllServices = function (req, res) {
@@ -185,29 +202,66 @@ module.exports.getAllServices = function (req, res) {
 
 }
 
-module.exports.getService = function (req, res) {
+module.exports.addProduct = function (req, res) {
 
-    Service.findOne({
-        'token': req.body.serviceToken
-    }, function (err, service) {
+    var newProduct = new Product();
+    var token = req.body.userToken + random.generate(10);
+
+    newProduct = req.body.newProductData;
+    newProduct.userToken = req.body.userToken;
+    newProduct.token = token;
+
+    newProduct.save().then(function () {
+        User.findOne({
+            'token': req.body.userToken
+        }, function (err, user) {
+            if (err) {
+                console.log(err);
+            } else {
+                user.products.push({
+                    productToken: token
+                });
+
+                user.save().then(function () {
+                    res.json('Product Added Successfully')
+                }, function (err) {
+                    console.log(err)
+                })
+            }
+        })
+
+    }, function (err) {
+        console.log(err);
+    })
+
+}
+
+
+module.exports.getProduct = function (req, res) {
+
+    Product.findOne({
+        'token': req.body.productToken
+    }, function (err, product) {
         if (err) {
             console.log(err)
         } else {
             User.findOne({
-                'token': service.userToken
+                'token': product.userToken
             }, function (err2, user) {
                 if (err2) {
                     console.log(err2);
                 } else {
                     var postData = {
-                        service: service,
-                        serviceOwner: user
+                        product: product,
+                        productOwner: user
                     };
+
                     res.json(postData);
                 }
             })
         }
     })
+
 }
 
 module.exports.getAllProducts = function (req, res) {
@@ -244,32 +298,6 @@ module.exports.getAllProducts = function (req, res) {
 
 }
 
-module.exports.getProduct = function (req, res) {
-
-    Product.findOne({
-        'token': req.body.productToken
-    }, function (err, product) {
-        if (err) {
-            console.log(err)
-        } else {
-            User.findOne({
-                'token': product.userToken
-            }, function (err2, user) {
-                if (err2) {
-                    console.log(err2);
-                } else {
-                    var postData = {
-                        product: product,
-                        productOwner: user
-                    };
-
-                    res.json(postData);
-                }
-            })
-        }
-    })
-
-}
 
 
 // module.exports.Search = function (req, res) {

@@ -4,7 +4,7 @@ var random = require('random-key');
 var productSchema = mongoose.Schema({
 
     userToken: String,
-    id: String,
+    token: String,
     Name: String,
     Description: String,
     productCategory: String,
@@ -19,7 +19,11 @@ var productSchema = mongoose.Schema({
         Score: Number,
         Comment: String
     }],
-    ReviewScore: Number
+    ReviewScore: Number,
+    dateCreated: {
+        type: Date,
+        default: Date.now
+    }
 });
 
 module.exports = mongoose.model('Product', productSchema);

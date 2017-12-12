@@ -12,7 +12,11 @@ var serviceSchema = mongoose.Schema({
         Score: Number,
         Comment: String
     }],
-    ReviewScore: Number
+    ReviewScore: Number,
+    dateCreated: {
+        type: Date,
+        default: Date.now
+    }
 
 })
 
