@@ -26,8 +26,6 @@ app.post('/api/user/signup', routes.SignUp);
 
 app.post('/api/user/login', routes.Login);
 
-app.post('/api/search', routes.Search);
-
 var server = app.listen(PORT, 'localhost', function () {
     var serverAddr = server.address().address;
     var serverPort = server.address().port;

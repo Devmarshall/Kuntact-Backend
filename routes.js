@@ -49,7 +49,7 @@ module.exports.Login = function (req, res) {
         'local.email': req.body.email
     }, function (err, user) {
         if (err) {
-            res.error(err);
+            console.log(err)
         } else {
             if (!user || !user.validPassword(req.body.password)) {
                 res.json({
@@ -62,7 +62,7 @@ module.exports.Login = function (req, res) {
                 }, '-local.password', function (err2, currentUser) {
                     if (err2) {
                         console.log(err2);
-                        res.error(err2);
+
                     } else {
                         res.json(currentUser);
                     }
@@ -92,7 +92,6 @@ module.exports.addService = function (req, res) {
 
             if (err) {
                 console.log(err);
-                res.error(err);
             } else {
                 user.services.push({
                     serviceToken: token
@@ -103,7 +102,6 @@ module.exports.addService = function (req, res) {
 
                 }, function (err2) {
 
-                    res.error(err2);
                     console.log(err2);
 
                 })
@@ -124,7 +122,7 @@ module.exports.getUser = function (req, res) {
     }, '-local.password', function (err, user) {
         if (err) {
             console.log(err);
-            res.error(err);
+
         } else {
             res.json(user);
         }
@@ -132,87 +130,151 @@ module.exports.getUser = function (req, res) {
 
 }
 
-// module.exports.getAllSkills = function (req, res) {
+module.exports.getAllServices = function (req, res) {
 
-//     var allSkills = [];
+    var allServices = [];
 
-//     User.find({}, function (err, allUsers) {
-
-//         if (err) {
-//             console.log(err);
-//             res.error(err)
-//         } else {
-//             allUsers.forEach(function (user) {
-//                 allSkills.push(user.mySkills.Name)
-//             });
-
-//             res.json(allSkills);
-//         }
-//     })
-// }
-
-module.exports.Search = function (req, res) {
-
-    console.log(req.body)
-    var currentUserToken = req.body.currentUserToken;
-
-    var params = {
-        $or: [{
-                'userName': {
-                    '$regex': req.body.searchString,
-                    '$options': 'i'
-                }
-            },
-            {
-                'mySkills.Name': {
-                    '$regex': req.body.searchString,
-                    '$options': 'i'
-                }
-            },
-            {
-                'mySkills.Description': {
-                    '$regex': req.body.searchString,
-                    '$options': 'i'
-                }
-            },
-            {
-                'phoneNumber': {
-                    '$regex': req.body.searchString,
-                    '$options': 'i'
-                }
-            },
-            {
-                'local.email': {
-                    '$regex': req.body.searchString,
-                    '$options': 'i'
-                }
-            }
-        ],
-        $and: [{
-            'token': {
-                $ne: currentUserToken
-            }
-        }]
-    };
-
-    // Yeah I had to borrow Somto's crappy code 😒
-    // params = { $or: [{ "discription": { '$regex': d, '$options': 'i' } }, { 'name': { '$regex': d, '$options': 'i' } }] }
-
-    User.find(params).exec(function (err, results) {
+    Service.find({}, function (err, tempAllServices) {
         if (err) {
-            res.json({
-                errorMsg: 'Search Error'
-            })
             console.log(err);
+
+        }
+    }).then(function () {
+
+        tempAllServices.forEach(service => {
+
+            User.findOne({
+                'token': service.userToken
+            }, function (err, user) {
+                if (err) {
+                    console.log(err);
+                } else {
+
+                    allServices.push({
+                        service: service,
+                        serviceOwner: user
+                    })
+
+                }
+            })
+
+        }).then(function () {
+
+            res.json(allServices)
+
+        }, function (err) {
+            console.log(err);
+        })
+
+    }, function (err) {
+        console.log(err);
+    })
+
+}
+
+module.exports.getService = function (req, res) {
+
+    Service.findOne({
+        'token': req.body.serviceToken
+    }, function (err, service) {
+        if (err) {
+            console.log(err)
         } else {
-            console.log(results);
-            if (results.length > 0) {
-                res.json(results);
-            } else {
-                res.json({
-                    errorMsg: 'No results found'
-                })
-            }
+            User.findOne({
+                'token': service.userToken
+            }, function (err2, user) {
+                if (err2) {
+                    console.log(err2);
+                } else {
+                    var postData = {
+                        service: service,
+                        serviceOwner: user
+                    };
+                    res.json(postData);
+                }
+            })
         }
     })
 }
+
+module.exports.getAllProducts = function (req, res) {
+
+}
+
+module.exports.getProduct = function (req, res) {
+
+}
+
+module.exports.getAllUsers = function (req, res) {
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// module.exports.Search = function (req, res) {
+
+//     console.log(req.body)
+//     var currentUserToken = req.body.currentUserToken;
+
+//     var params = {
+//         $or: [{
+//                 'mySkills.Name': {
+//                     '$regex': req.body.searchString,
+//                     '$options': 'i'
+//                 }
+//             },
+//             {
+//                 'mySkills.Description': {
+//                     '$regex': req.body.searchString,
+//                     '$options': 'i'
+//                 }
+//             },
+//             {
+//                 'phoneNumber': {
+//                     '$regex': req.body.searchString,
+//                     '$options': 'i'
+//                 }
+//             },
+//             {
+//                 'local.email': {
+//                     '$regex': req.body.searchString,
+//                     '$options': 'i'
+//                 }
+//             }
+//         ],
+//         $and: [{
+//             'token': {
+//                 $ne: currentUserToken
+//             }
+//         }]
+//     };
+
+//     User.find(params).exec(function (err, results) {
+//         if (err) {
+//             res.json({
+//                 errorMsg: 'Search Error'
+//             })
+//             console.log(err);
+//         } else {
+//             console.log(results);
+//             if (results.length > 0) {
+//                 res.json(results);
+//             } else {
+//                 res.json({
+//                     errorMsg: 'No results found'
+//                 })
+//             }
+//         }
+//     })
+// }
