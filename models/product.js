@@ -7,7 +7,7 @@ var productSchema = mongoose.Schema({
     token: String,
     Name: String,
     Description: String,
-    productCategory: String,
+    Category: String,
     Price: Number,
     AmountInStock: Number,
     Images: {
@@ -24,6 +24,7 @@ var productSchema = mongoose.Schema({
         type: Date,
         default: Date.now
     }
+    
 });
 
 module.exports = mongoose.model('Product', productSchema);

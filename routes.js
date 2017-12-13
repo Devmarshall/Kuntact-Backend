@@ -112,7 +112,7 @@ module.exports.addService = function (req, res) {
                     serviceToken: token
                 });
                 user.save().then(function () {
-                    res.json('Product Added Successfully');
+                    res.json('Service Added Successfully');
                 }, function (err2) {
                     console.log(err2);
                 })
@@ -236,7 +236,6 @@ module.exports.addProduct = function (req, res) {
 
 }
 
-
 module.exports.getProduct = function (req, res) {
 
     Product.findOne({
@@ -298,61 +297,114 @@ module.exports.getAllProducts = function (req, res) {
 
 }
 
+module.exports.Search = function (req, res) {
 
+    var searchResult = {}
 
-// module.exports.Search = function (req, res) {
+    searchResult.users = new [];
+    searchResult.services = new [];
+    searchResult.products = new [];
 
-//     console.log(req.body)
-//     var currentUserToken = req.body.currentUserToken;
+    var currentUserToken = req.body.currentUserToken;
+    var presentUserLocation = req.body.currentLocation;
 
-//     var params = {
-//         $or: [{
-//                 'mySkills.Name': {
-//                     '$regex': req.body.searchString,
-//                     '$options': 'i'
-//                 }
-//             },
-//             {
-//                 'mySkills.Description': {
-//                     '$regex': req.body.searchString,
-//                     '$options': 'i'
-//                 }
-//             },
-//             {
-//                 'phoneNumber': {
-//                     '$regex': req.body.searchString,
-//                     '$options': 'i'
-//                 }
-//             },
-//             {
-//                 'local.email': {
-//                     '$regex': req.body.searchString,
-//                     '$options': 'i'
-//                 }
-//             }
-//         ],
-//         $and: [{
-//             'token': {
-//                 $ne: currentUserToken
-//             }
-//         }]
-//     };
+    var userParams = {
+        $or: [{
+                'Name.firstName': {
+                    '$regex': req.body.searchString,
+                    '$options': 'i'
+                }
+            },
+            {
+                'Name.lastName': {
+                    '$regex': req.body.searchString,
+                    '$options': 'i'
+                }
+            },
+            {
+                'local.email': {
+                    '$regex': req.body.searchString,
+                    '$options': 'i'
+                }
+            },
+            {
+                'phoneNumber': {
+                    '$regex': req.body.searchString,
+                    '$options': 'i'
+                }
+            }
+        ],
+        $and: [{
+            'token': {
+                $ne: req.body.currentUserToken
+            }
+        }]
+    }
 
-//     User.find(params).exec(function (err, results) {
-//         if (err) {
-//             res.json({
-//                 errorMsg: 'Search Error'
-//             })
-//             console.log(err);
-//         } else {
-//             console.log(results);
-//             if (results.length > 0) {
-//                 res.json(results);
-//             } else {
-//                 res.json({
-//                     errorMsg: 'No results found'
-//                 })
-//             }
-//         }
-//     })
-// }
+    var serviceParams = {
+        $or: [{
+                'Name': {
+                    '$regex': req.body.searchString,
+                    '$options': 'i'
+                }
+            },
+            {
+                'Category': {
+                    '$regex': req.body.searchString,
+                    '$options': 'i'
+                }
+            }
+        ],
+        $and: [{
+            'userToken': {
+                $ne: req.body.currentUserToken
+            }
+        }]
+    }
+
+    var productParams = {
+        $or: [{
+                'Name': {
+                    '$regex': req.body.searchString,
+                    '$options': 'i'
+                }
+            },
+            {
+                'Category': {
+                    '$regex': req.body.searchString,
+                    '$options': 'i'
+                }
+            }
+        ],
+        $and: [{
+            'userToken': {
+                $ne: req.body.currentUserToken
+            }
+        }]
+    }
+
+    User.find(userParams).exec(function (err, userResults) {
+        if (err) {
+            console.log(err)
+        } else {
+            searchResult.users = userResults;
+        }
+    });
+
+    Service.find(serviceParams).exec(function (err, serviceResults) {
+        if (err) {
+            console.log(err);
+        } else {
+            searchResult.services = serviceResults;
+        }
+    });
+
+    Product.find(serviceParams).exec(function (err, productResults) {
+        if (err) {
+            console.log(err);
+        } else {
+            searchResult.products = productResults;
+        }
+    });
+
+}

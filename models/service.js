@@ -4,9 +4,13 @@ var random = require('random-key');
 var serviceSchema = mongoose.Schema({
 
     token: String,
+    Location: {
+        latitude: Number,
+        longtitude: Number
+    },
     userToken: String,
     Name: String,
-    serviceCategory: String,
+    Category: String,
     Description: String,
     Reviews: [{
         Score: Number,
@@ -18,6 +22,6 @@ var serviceSchema = mongoose.Schema({
         default: Date.now
     }
 
-})
+});
 
 module.exports = mongoose.model('Service', serviceSchema);
