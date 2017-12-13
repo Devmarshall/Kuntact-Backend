@@ -23,12 +23,6 @@ var userSchema = mongoose.Schema({
         productToken: String
     }],
     phoneNumber: String,
-    PhysicalLocation: [{
-        BuildingNo: Number,
-        Street: String,
-        City: String,
-        State: String
-    }],
     token: String
 
 });

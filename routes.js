@@ -1,3 +1,7 @@
+import {
+    ECONNABORTED
+} from 'constants';
+
 var mongoose = require('mongoose');
 var User = require('./models/user.js');
 var Service = require('./models/service.js');
@@ -306,7 +310,7 @@ module.exports.Search = function (req, res) {
     searchResult.products = new [];
 
     var currentUserToken = req.body.currentUserToken;
-    var presentUserLocation = req.body.currentLocation;
+    var currentUserLocation = req.body.currentLocation;
 
     var userParams = {
         $or: [{
@@ -389,22 +393,82 @@ module.exports.Search = function (req, res) {
         } else {
             searchResult.users = userResults;
         }
-    });
+    }).then(function () {
 
-    Service.find(serviceParams).exec(function (err, serviceResults) {
-        if (err) {
+        Service.find(serviceParams).exec(function (err, serviceResults) {
+            if (err) {
+                console.log(err);
+            } else {
+                searchResult.services = serviceResults;
+            }
+        }).then(function () {
+            searchResult.services.forEach(function (service) {
+                // Distance assign
+                service.distBtw = distance(currentUserLocation.latitude, currentUserLocation.longtitude, service.Location.latitude, service.Location.longtitude);
+            })
+
+        }, function (err) {
             console.log(err);
-        } else {
-            searchResult.services = serviceResults;
-        }
-    });
+        }).then(function () {
 
-    Product.find(serviceParams).exec(function (err, productResults) {
-        if (err) {
+            searchResult.servies.sort(function (a, b) {
+                return a.distBtw - b.distBtw;
+            })
+
+        }, function (err) {
             console.log(err);
-        } else {
-            searchResult.products = productResults;
-        }
-    });
+        }).then(function () {
 
+            Product.find(serviceParams).exec(function (err, productResults) {
+                if (err) {
+                    console.log(err);
+                } else {
+                    searchResult.products = productResults;
+                }
+            }).then(function () {
+
+                searchResult.products.forEach(function (product) {
+                    // Distance assign
+                    product.distBtw = distance(currentUserLocation.latitude, currentUserLocation.longtitude, product.Location.latitude, product.Location.longtitude);
+
+                })
+
+            }, function (err) {
+                console.log(err);
+            }).then(function () {
+
+                searchResult.products.sort(function (a, b) {
+                    return a.distBtw - b.distBtw;
+                }).then(function () {
+                    res.json(searchResult);
+                }, function (err) {
+                    console.log(err);
+                })
+
+            }, function (err) {
+                console.log(err);
+            })
+
+        }, function (err) {
+            console.log(err);
+        })
+
+    }, function (err) {
+        console.log(err)
+    })
+
+}
+
+
+function distance(lat1, lon1, lat2, lon2) {
+    var radlat1 = Math.PI * lat1 / 180
+    var radlat2 = Math.PI * lat2 / 180
+    var theta = lon1 - lon2
+    var radtheta = Math.PI * theta / 180
+    var dist = Math.sin(radlat1) * Math.sin(radlat2) + Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
+    dist = Math.acos(dist)
+    dist = dist * 180 / Math.PI
+    dist = dist * 60 * 1.1515
+
+    return dist
 }
