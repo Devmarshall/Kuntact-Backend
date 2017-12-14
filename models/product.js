@@ -3,7 +3,15 @@ var random = require('random-key');
 
 var productSchema = mongoose.Schema({
 
-    userToken: String,
+    ownerName: {
+        firstName: String,
+        lastName: String
+    },
+    Location: {
+        latitude: Number,
+        longtitude: Number
+    },
+    ownerToken: String,
     token: String,
     Name: String,
     Description: String,

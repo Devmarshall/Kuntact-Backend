@@ -3,12 +3,17 @@ var random = require('random-key');
 
 var serviceSchema = mongoose.Schema({
 
+
+    ownerName: {
+        firstName: String,
+        lastName: String
+    },
     token: String,
     Location: {
         latitude: Number,
         longtitude: Number
     },
-    userToken: String,
+    ownerToken: String,
     Name: String,
     Category: String,
     Description: String,

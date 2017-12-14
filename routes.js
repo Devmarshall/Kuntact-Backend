@@ -12,7 +12,7 @@ var random = require('random-key');
 
 module.exports.SignUp = function (req, res) {
 
-    // First check if user email or username is taken is taken before signup
+    // Check if user email or username is taken is taken before signup
 
     User.findOne({
         'local.email': req.body.email
@@ -100,13 +100,14 @@ module.exports.addService = function (req, res) {
     var token = req.body.userToken + random.generate(15);
 
     newService = req.body.newServiceData;
-    newService.userToken = req.body.userToken;
+    newService.ownerToken = req.body.userToken;
+    newService.ownerName = req.body.ownerName;
     newService.token = token;
 
     newService.save().then(function () {
 
         User.findOne({
-            'token': req.body.userToken
+            'token': req.body.ownerToken
         }, function (err, user) {
 
             if (err) {
@@ -151,7 +152,7 @@ module.exports.getService = function (req, res) {
             console.log(err)
         } else {
             User.findOne({
-                'token': service.userToken
+                'token': service.ownerToken
             }, function (err2, user) {
                 if (err2) {
                     console.log(err2);
@@ -181,7 +182,7 @@ module.exports.getAllServices = function (req, res) {
         tempAllServices.forEach(service => {
 
             User.findOne({
-                'token': service.userToken
+                'token': service.ownerToken
             }, function (err, user) {
                 if (err) {
                     console.log(err);
@@ -212,12 +213,13 @@ module.exports.addProduct = function (req, res) {
     var token = req.body.userToken + random.generate(10);
 
     newProduct = req.body.newProductData;
-    newProduct.userToken = req.body.userToken;
+    newProduct.ownerToken = req.body.userToken;
+    newProduct.ownerName = req.body.ownerName;
     newProduct.token = token;
 
     newProduct.save().then(function () {
         User.findOne({
-            'token': req.body.userToken
+            'token': req.body.ownerToken
         }, function (err, user) {
             if (err) {
                 console.log(err);
@@ -249,7 +251,7 @@ module.exports.getProduct = function (req, res) {
             console.log(err)
         } else {
             User.findOne({
-                'token': product.userToken
+                'token': product.ownerToken
             }, function (err2, user) {
                 if (err2) {
                     console.log(err2);
@@ -278,7 +280,7 @@ module.exports.getAllProducts = function (req, res) {
     }).then(function () {
         tempAllProducts.forEach(product => {
             User.findOne({
-                'token': product.userToken
+                'token': product.ownerToken
             }, function (err, user) {
                 if (err) {
                     console.log(err);
@@ -357,10 +359,16 @@ module.exports.Search = function (req, res) {
                     '$regex': req.body.searchString,
                     '$options': 'i'
                 }
+            },
+            {
+                'Description': {
+                    '$regex': req.body.searchString,
+                    '$options': 'i'
+                }
             }
         ],
         $and: [{
-            'userToken': {
+            'ownerToken': {
                 $ne: req.body.currentUserToken
             }
         }]
@@ -378,10 +386,16 @@ module.exports.Search = function (req, res) {
                     '$regex': req.body.searchString,
                     '$options': 'i'
                 }
+            }, ,
+            {
+                'Description': {
+                    '$regex': req.body.searchString,
+                    '$options': 'i'
+                }
             }
         ],
         $and: [{
-            'userToken': {
+            'ownerToken': {
                 $ne: req.body.currentUserToken
             }
         }]
@@ -441,21 +455,13 @@ module.exports.Search = function (req, res) {
                     return a.distBtw - b.distBtw;
                 }).then(function () {
                     res.json(searchResult);
-                }, function (err) {
-                    console.log(err);
-                })
+                }, logErr(err));
 
-            }, function (err) {
-                console.log(err);
-            })
+            }, logErr(err));
 
-        }, function (err) {
-            console.log(err);
-        })
+        }, logErr(err));
 
-    }, function (err) {
-        console.log(err)
-    })
+    }, logErr(err));
 
 }
 
@@ -471,4 +477,8 @@ function distance(lat1, lon1, lat2, lon2) {
     dist = dist * 60 * 1.1515
 
     return dist
+}
+
+function logErr(err) {
+    console.log(err);
 }
