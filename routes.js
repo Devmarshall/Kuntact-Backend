@@ -1,7 +1,3 @@
-import {
-    ECONNABORTED
-} from 'constants';
-
 var mongoose = require('mongoose');
 var User = require('./models/user.js');
 var Service = require('./models/service.js');
@@ -44,7 +40,6 @@ module.exports.SignUp = function (req, res) {
             }
         }
     })
-
 }
 
 module.exports.Login = function (req, res) {
@@ -75,7 +70,6 @@ module.exports.Login = function (req, res) {
             }
         }
     })
-
 }
 
 module.exports.getUser = function (req, res) {
@@ -90,7 +84,6 @@ module.exports.getUser = function (req, res) {
             res.json(user);
         }
     })
-
 }
 
 module.exports.addService = function (req, res) {
@@ -109,7 +102,6 @@ module.exports.addService = function (req, res) {
         User.findOne({
             'token': req.body.ownerToken
         }, function (err, user) {
-
             if (err) {
                 console.log(err);
             } else {
@@ -118,17 +110,12 @@ module.exports.addService = function (req, res) {
                 });
                 user.save().then(function () {
                     res.json('Service Added Successfully');
-                }, function (err2) {
-                    console.log(err2);
-                })
+                }, logErr(err2));
             }
 
         });
 
-    }, function (err) {
-        console.log(err);
-    })
-
+    }, logErr(err));
 }
 
 module.exports.getAllUsers = function (req, res) {
@@ -140,7 +127,6 @@ module.exports.getAllUsers = function (req, res) {
             res.json(allUsers);
         }
     })
-
 }
 
 module.exports.getService = function (req, res) {
@@ -175,7 +161,6 @@ module.exports.getAllServices = function (req, res) {
     Service.find({}, function (err, tempAllServices) {
         if (err) {
             console.log(err);
-
         }
     }).then(function () {
 
@@ -197,14 +182,9 @@ module.exports.getAllServices = function (req, res) {
 
         }).then(function () {
             res.json(allServices)
-        }, function (err) {
-            console.log(err);
-        })
+        }, logErr(err))
 
-    }, function (err) {
-        console.log(err);
-    })
-
+    }, logErr(err));
 }
 
 module.exports.addProduct = function (req, res) {
@@ -230,16 +210,10 @@ module.exports.addProduct = function (req, res) {
 
                 user.save().then(function () {
                     res.json('Product Added Successfully')
-                }, function (err) {
-                    console.log(err)
-                })
+                }, logErr(err));
             }
         })
-
-    }, function (err) {
-        console.log(err);
-    })
-
+    }, logErr(err));
 }
 
 module.exports.getProduct = function (req, res) {
@@ -266,7 +240,6 @@ module.exports.getProduct = function (req, res) {
             })
         }
     })
-
 }
 
 module.exports.getAllProducts = function (req, res) {
@@ -294,13 +267,8 @@ module.exports.getAllProducts = function (req, res) {
             })
         }).then(function () {
             res.json(allProducts)
-        }, function (err) {
-            console.log(err);
-        })
-    }, function (err) {
-        console.log(err);
-    })
-
+        }, logErr(err));
+    }, logErr(err));
 }
 
 module.exports.Search = function (req, res) {
@@ -421,17 +389,13 @@ module.exports.Search = function (req, res) {
                 service.distBtw = distance(currentUserLocation.latitude, currentUserLocation.longtitude, service.Location.latitude, service.Location.longtitude);
             })
 
-        }, function (err) {
-            console.log(err);
-        }).then(function () {
+        }, logErr(err)).then(function () {
 
             searchResult.servies.sort(function (a, b) {
                 return a.distBtw - b.distBtw;
             })
 
-        }, function (err) {
-            console.log(err);
-        }).then(function () {
+        }, logErr(err)).then(function () {
 
             Product.find(serviceParams).exec(function (err, productResults) {
                 if (err) {
@@ -447,9 +411,7 @@ module.exports.Search = function (req, res) {
 
                 })
 
-            }, function (err) {
-                console.log(err);
-            }).then(function () {
+            }, logErr(err)).then(function () {
 
                 searchResult.products.sort(function (a, b) {
                     return a.distBtw - b.distBtw;
@@ -462,9 +424,7 @@ module.exports.Search = function (req, res) {
         }, logErr(err));
 
     }, logErr(err));
-
 }
-
 
 function distance(lat1, lon1, lat2, lon2) {
     var radlat1 = Math.PI * lat1 / 180
